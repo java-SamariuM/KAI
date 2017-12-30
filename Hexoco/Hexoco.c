@@ -1,6 +1,4 @@
 #include <stdio.h>
-#include <stdlib.h>
-#include <math.h>
 
 int notinHexagons(int n, int m, int places[31][7], int *hexagons[7][7]){
 	int i, j;
