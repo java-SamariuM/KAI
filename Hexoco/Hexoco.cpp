@@ -11,7 +11,7 @@ bool has30degreeline[10][32] = {false};
 bool has60degreeline[20][32] = {false};
 bool hasHexagon[10][10][32] = {false};
 pair <int,int> hexFinderGraf[10][10][3];
-int hexCount[10][10] = {0};
+int hexCount[10][10]={0};
 int k;
 
 void reciever(void);
@@ -28,7 +28,7 @@ bool removeFromPlace(int x, int y, int num);
 
 bool makeHexoco(int x, int y);
 
-#define Debug
+//#define Debug
 
 int main() {
     cin >> k;
@@ -37,12 +37,32 @@ int main() {
     #ifdef Debug
     cout << "isCenter and makeGraf function check:" << endl<< hexCount[4][4] <<endl;
     for(int i = 0; i < hexCount[4][4]; i++){
-        cout<< hexFinderGraf[4][4][i].first <<" "<< hexFinderGraf[4][4][i].second<<endl;
+        cout << hexFinderGraf[4][4][i].first <<" "<< hexFinderGraf[4][4][i].second<<endl;
     }
 
-    putInPlace(3, 4, 4);
-    cout<< "putInPlace fuction check:\n" << "hexagon[3][4] is " << hexagon[3][4] <<endl;
+    putInPlace(3, 4, 8);
+    cout << "putInPlace fuction check:\n" << "hexagon[3][4] is " << hexagon[4][3] <<endl;
+    cout << "has0degreeline[4][8] is " << has0degreeline[4][8] << endl;
+    cout << "has30degreeline[3][8] is " << has30degreeline[3][8] << endl;
+    cout << "has60degreeline[4-3+10][8] is " << has60degreeline[11][8] <<endl;
+    cout << "hasHexagon[3][3][8] is " << hasHexagon[3][3][8] <<endl;
 
+    cout << "has0degreeline[1][8] is " << has0degreeline[1][8] << endl;
+    cout << "has30degreeline[1][8] is " << has30degreeline[1][8] << endl;
+    cout << "has60degreeline[10][8] is " << has60degreeline[10][8] <<endl;
+    cout << "hasHexagon[3][3][8] is " << hasHexagon[2][1][8] <<endl;
+
+    removeFromPlace(3, 4, 8);
+    cout << "removeFromPlace fuction check:\n" << "hexagon[3][4] is " << hexagon[4][3] <<endl;
+    cout << "has0degreeline[4][8] is " << has0degreeline[4][8] << endl;
+    cout << "has30degreeline[3][8] is " << has30degreeline[3][8] << endl;
+    cout << "has60degreeline[4-3+10][8] is " << has60degreeline[11][8] <<endl;
+    cout << "hasHexagon[3][3][8] is " << hasHexagon[3][3][8] <<endl;
+
+    cout << "has0degreeline[1][8] is " << has0degreeline[1][8] << endl;
+    cout << "has30degreeline[1][8] is " << has30degreeline[1][8] << endl;
+    cout << "has60degreeline[10][8] is " << has60degreeline[10][8] <<endl;
+    cout << "hasHexagon[3][3][8] is " << hasHexagon[2][1][8] <<endl;
     #endif // Debug
     makeHexoco(1, 0);
     giver();
@@ -110,7 +130,7 @@ void makeGraf(void){  //ok
     }
 }
 
-bool putInPlace(int x, int y, int num){
+bool putInPlace(int x, int y, int num){ //ok
     if( (!has0degreeline[y][num]) && (!has30degreeline[x][num]) && (!has60degreeline[y-x+10][num]) ){
         for(int i = 0; i < hexCount[y][x]; i++){
             if(hasHexagon[hexFinderGraf[y][x][i].second][hexFinderGraf[y][x][i].first][num]){
@@ -124,11 +144,12 @@ bool putInPlace(int x, int y, int num){
         for(int i = 0; i < hexCount[y][x]; i++){
             hasHexagon[hexFinderGraf[y][x][i].second][hexFinderGraf[y][x][i].first][num] = true;
         }
+        return true;
     }
     return false;
 }
 
-bool removeFromPlace(int x, int y, int num){
+bool removeFromPlace(int x, int y, int num){ //ok
     hexagon[y][x] = 0;
     has0degreeline[y][num] = false;
     has30degreeline[x][num] = false;
@@ -136,6 +157,7 @@ bool removeFromPlace(int x, int y, int num){
     for(int i = 0; i < hexCount[y][x]; i++){
         hasHexagon[hexFinderGraf[y][x][i].second][hexFinderGraf[y][x][i].first][num] = false;
     }
+    return true;
 }
 
 void reciever(void) {   //ok
@@ -269,18 +291,31 @@ bool makeHexoco(int x, int y){
             }
     }
     else{
-        for(int i = 1; i <= k; i++){
-            if(putInPlace(x, y, i)){
-                if(makeHexoco(nextX, nextY)){
-                    return true;
-                }
-                else{
-                    removeFromPlace(x,y,i);
+        if(nextX == -1){
+            for(int i = 1; i <= k; i++){
+                if(putInPlace(x, y, i)){
+                   return true;
                 }
             }
-
+            return false;
         }
-        return false;
+        else{
+            for(int i = 1; i <= k; i++){
+                //cout <<"hi"<<endl;
+                if(putInPlace(x, y, i)){
+
+                    if(makeHexoco(nextX, nextY)){
+                        return true;
+
+                    }
+                    else{
+                        removeFromPlace(x,y,i);
+                    }
+                }
+
+            }
+            return false;
+        }
     }
 
 }
