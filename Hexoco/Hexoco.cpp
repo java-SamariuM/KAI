@@ -1,117 +1,63 @@
-#include <iostream>
+#include <bits/stdc++.h>
+
 
 using namespace std;
 
 int hexagon[10][10];
-bool mark[10][10] = { false };
-bool counted[10][10] = {false};
+bool mark[10][10] = { false }; //if it is a part of hexagon
+bool defaultNum[10][10] = {false}; //if it is a valued thing
+bool has0degreeline[10][32]= {false};
+bool has30degreeline[10][32] = {false};
+bool has60degreeline[20][32] = {false};
+bool hasHexagon[10][10][32] = {false};
+pair <int,int> hexFinderGraf[10][10][3];
+int hexCount[10][10] = {0};
 int k;
 
 void reciever(void);
 
 void giver(void);
 
-
-bool find0degreeline(int x, int y, int num);
-
-
-bool find30degreeline(int x, int y , int num);
-
-
-bool find60degreeline(int x , int y, int num);
-
-
-bool checkcenter(int x, int y, int num);
+void makeGraf(void);
 
 bool isCenter(int x, int y);
 
-bool findCenter(int x, int y, int num);
+bool putInPlace(int x, int y, int num);
 
-bool makeHexacon(int x, int y);
+bool removeFromPlace(int x, int y, int num);
 
+bool makeHexoco(int x, int y);
+
+#define Debug
 
 int main() {
     cin >> k;
     reciever();
+    makeGraf();
+    #ifdef Debug
+    cout << "isCenter and makeGraf function check:" << endl<< hexCount[4][4] <<endl;
+    for(int i = 0; i < hexCount[4][4]; i++){
+        cout<< hexFinderGraf[4][4][i].first <<" "<< hexFinderGraf[4][4][i].second<<endl;
+    }
 
-    makeHexacon(1, 0);
+    putInPlace(3, 4, 4);
+    cout<< "putInPlace fuction check:\n" << "hexagon[3][4] is " << hexagon[3][4] <<endl;
+
+    #endif // Debug
+    makeHexoco(1, 0);
     giver();
 	return 0;
 
 }
 
-bool find0degreeline(int x, int y, int num){
-	bool ans = true;
-	for (int i = 0; i < 10; i++) {
-		if (mark[y][i]) {
-			if (hexagon[y][i] == num) {
-				ans = false;
-				break;
-			}
-		}
-	}
-	return ans;
-}
-
-bool find30degreeline(int x , int y,  int num){
-    bool ans = true;
-	for (int i = 0; i < 10; i++) {
-		if (mark[i][x]) {
-			if (hexagon[i][x] == num) {
-				ans = false;
-				break;
-			}
-		}
-	}
-	return ans;
-}
-
-bool find60degreeline(int x , int y, int num){
-    bool ans = true;
-    int b = y - x;
-	for (int i = -10; i < 10; i++) {
-            if((i >= 0) && (i<10)){
-                if (mark[i+b][i]) {
-                    if (hexagon[i+b][i] == num) {
-                        ans = false;
-                        break;
-                    }
-                }
-            }
-	}
-	return ans;
-}
-
-bool checkcenter(int x, int y, int num){
-    bool ans = true;
-    for(int i = -1; i <= 1; i+=2){
-        if((x+i)>=0 && (x+i)<10 && mark[y][x+i]){
-            if(hexagon[y][x+i] == num){
-                ans = false;
-                break;
-            }
-        }
-        if((y+i)>=0 && (y+i)<10 && mark[y+i][x]){
-            if(hexagon[y+i][x] == num){
-                ans = false;
-                break;
-            }
-        }
-        if((y+i)>=0 && (y+i)<10 && (x+i)>=0 && (x+i)<10 && mark[y+i][x+i]){
-            if(hexagon[y+i][x+i] == num){
-                ans = false;
-                break;
-            }
-        }
-    }
-    return ans;
-}
-
-bool isCenter(int x, int y){
+bool isCenter(int x, int y){ //ok
     if((x == 1) && (y == 2)){
         return true;
     }
     if((x == 2) && (y == 1)){
+        return true;
+    }
+    if((x == 3) && (y == 3)){
         return true;
     }
     if((x == 2) && (y == 4)){
@@ -129,102 +75,179 @@ bool isCenter(int x, int y){
     return false;
 }
 
+void makeGraf(void){  //ok
+    for(int j = 0; j < 10; j++){
+        for(int i = 0; i < 10; i++){
+            if(mark[j][i]){
+                if(isCenter(i, j)){
+                    hexCount[j][i] = 1;
+                    hexFinderGraf[j][i][0].first = i;
+                    hexFinderGraf[j][i][0].second = j;
+                    continue;
+                }
+                else{
+                    for(int t = -1; t <= 1; t+=2){
+                        if(isCenter(i+t, j)){
+                            hexFinderGraf[j][i][ hexCount[j][i] ].first = i+t;
+                            hexFinderGraf[j][i][ hexCount[j][i] ].second = j;
+                            hexCount[j][i]++;
+                        }
+                        if(isCenter(i, j+t)){
+                            hexFinderGraf[j][i][ hexCount[j][i] ].first = i;
+                            hexFinderGraf[j][i][ hexCount[j][i] ].second = j+t;
+                            hexCount[j][i]++;
+                        }
+                        if(isCenter(i+t, j+t)){
+                            hexFinderGraf[j][i][ hexCount[j][i] ].first = i+t;
+                            hexFinderGraf[j][i][ hexCount[j][i] ].second = j+t;
+                            hexCount[j][i]++;
+                        }
 
-void reciever(void) {
+                    }
+                }
+            }
+        }
+    }
+}
+
+bool putInPlace(int x, int y, int num){
+    if( (!has0degreeline[y][num]) && (!has30degreeline[x][num]) && (!has60degreeline[y-x+10][num]) ){
+        for(int i = 0; i < hexCount[y][x]; i++){
+            if(hasHexagon[hexFinderGraf[y][x][i].second][hexFinderGraf[y][x][i].first][num]){
+                return false;
+            }
+        }
+        hexagon[y][x] = num;
+        has0degreeline[y][num] = true;
+        has30degreeline[x][num] = true;
+        has60degreeline[y-x+10][num] = true;
+        for(int i = 0; i < hexCount[y][x]; i++){
+            hasHexagon[hexFinderGraf[y][x][i].second][hexFinderGraf[y][x][i].first][num] = true;
+        }
+    }
+    return false;
+}
+
+bool removeFromPlace(int x, int y, int num){
+    hexagon[y][x] = 0;
+    has0degreeline[y][num] = false;
+    has30degreeline[x][num] = false;
+    has60degreeline[y-x+10][num] = false;
+    for(int i = 0; i < hexCount[y][x]; i++){
+        hasHexagon[hexFinderGraf[y][x][i].second][hexFinderGraf[y][x][i].first][num] = false;
+    }
+}
+
+void reciever(void) {   //ok
     int input;
 	for (int i = 1; i <= 2; i++) {
 		mark[0][i] = true;
 		cin >> input;
 		hexagon[0][i] = input;
+        has0degreeline[0][input] = true;
+        has30degreeline[i][input] = true;
+        has60degreeline[0-i+10][input] = true;
+        for(int t = 0; t < hexCount[0][i]; t++){
+            hasHexagon[hexFinderGraf[0][i][t].second][hexFinderGraf[0][i][t].first][input] = true;
+        }
 		if(input != 0){
-            counted[0][i] = true;
+            defaultNum[0][i] = true;
 		}
 	}
 	for (int i = 0; i < 5; i++) {
 		mark[1][i] = true;
 		cin >> input;
 		hexagon[1][i] = input;
+        has0degreeline[1][input] = true;
+        has30degreeline[i][input] = true;
+        has60degreeline[1-i+10][input] = true;
+        for(int t = 1; t < hexCount[1][i]; t++){
+            hasHexagon[hexFinderGraf[1][i][t].second][hexFinderGraf[1][i][t].first][input] = true;
+        }
 		if(input != 0){
-            counted[1][i] = true;
+            defaultNum[1][i] = true;
 		}
 	}
 	for (int i = 0; i < 6; i++) {
 		mark[2][i] = true;
 		cin >> input;
 		hexagon[2][i] = input;
+        has0degreeline[2][input] = true;
+        has30degreeline[i][input] = true;
+        has60degreeline[2-i+10][input] = true;
+        for(int t = 0; t < hexCount[2][i]; t++){
+            hasHexagon[hexFinderGraf[2][i][t].second][hexFinderGraf[2][i][t].first][input] = true;
+        }
 		if(input != 0){
-            counted[2][i] = true;
+            defaultNum[2][i] = true;
 		}
 	}
 	for (int i = 1; i < 6; i++) {
 		mark[3][i] = true;
 		cin >> input;
 		hexagon[3][i] = input;
+        has0degreeline[3][input] = true;
+        has30degreeline[i][input] = true;
+        has60degreeline[3-i+10][input] = true;
+        for(int t = 0; t < hexCount[3][i]; t++){
+            hasHexagon[hexFinderGraf[3][i][t].second][hexFinderGraf[3][i][t].first][input] = true;
+        }
 		if(input != 0){
-            counted[3][i] = true;
+            defaultNum[3][i] = true;
 		}
 	}
 	for (int i = 1; i < 7; i++) {
 		mark[4][i] = true;
 		cin >> input;
 		hexagon[4][i] = input;
+        has0degreeline[4][input] = true;
+        has30degreeline[i][input] = true;
+        has60degreeline[4-i+10][input] = true;
+        for(int t = 0; t < hexCount[4][i]; t++){
+            hasHexagon[hexFinderGraf[4][i][t].second][hexFinderGraf[4][i][t].first][input] = true;
+        }
 		if(input != 0){
-            counted[4][i] = true;
+            defaultNum[4][i] = true;
 		}
 	}
 	for (int i = 2; i < 7; i++) {
 		mark[5][i] = true;
 		cin >> input;
 		hexagon[5][i] = input;
+        has0degreeline[5][input] = true;
+        has30degreeline[i][input] = true;
+        has30degreeline[5-i+10][input] = true;
+        for(int t = 0; t < hexCount[5][i]; t++){
+            hasHexagon[hexFinderGraf[5][i][t].second][hexFinderGraf[5][i][t].first][input] = true;
+        }
 		if(input != 0){
-            counted[5][i] = true;
+            defaultNum[5][i] = true;
 		}
 	}
 	for (int i = 4; i < 6; i++) {
 		mark[6][i] = true;
 		cin >> input;
 		hexagon[6][i] = input;
+        has0degreeline[6][input] = true;
+        has60degreeline[i][input] = true;
+        has60degreeline[6-i+10][input] = true;
+        for(int t = 0; t < hexCount[6][i]; t++){
+            hasHexagon[hexFinderGraf[6][i][t].second][hexFinderGraf[6][i][t].first][input] = true;
+        }
 		if(input != 0){
-            counted[6][i] = true;
+            defaultNum[6][i] = true;
 		}
 	}
 
 }
 
-bool findCenter(int x, int y, int num){
-    for(int i = -1; i <= 1; i+=2){
-        if((x+i)>=0 && (x+i)<10 && mark[y][x+i]){
-            if(isCenter(y, x+i)){
-                if(!checkcenter(x+i, y, num)){
-                    return false;
-                }
-            }
-        }
-        if((y+i)>=0 && (y+i)<10 && mark[y+i][x]){
-            if(isCenter(y+i, x)){
-                if(!checkcenter(x+i, y+i, num)){
-                    return false;
-                }
-            }
-        }
-        if((y+i)>=0 && (y+i)<10 && (x+i)>=0 && (x+i)<10 && mark[y+i][x+i]){
-            if(isCenter(y+i, x+i)){
-                if(!checkcenter(x+i, y+i, num)){
-                    return false;
-                }
-            }
-        }
-    }
-    return true;
-}
-
-bool makeHexacon(int x, int y){
+bool makeHexoco(int x, int y){
     int nextX = x, nextY = y;
     if(mark[y][x+1] == true){
         nextX++;
     }
     else{
-        if(x == 6 && y == 6){
+        if((x == 5) && (y == 6)){
             nextX = -1;
             nextY = -1;
         }
@@ -237,31 +260,32 @@ bool makeHexacon(int x, int y){
         }
     }
 
-    if(counted[y][x]){
+    if(defaultNum[y][x]){
             if(nextX == -1){
-                return (find0degreeline(x,y,hexagon[y][x]) && find30degreeline(x,y,hexagon[y][x]) && find60degreeline(x,y,hexagon[y][x]) && findCenter(x,y,hexagon[y][x]));
+                return true;
             }
             else{
-                return makeHexacon(nextX, nextY);
+                return makeHexoco(nextX, nextY);
             }
     }
     else{
         for(int i = 1; i <= k; i++){
-            if(findCenter(x, y, i) && find0degreeline(x,y,i) && find30degreeline(x,y,i) && find60degreeline(x,y,i)){
-               counted[y][x] = true;
-               hexagon[y][x] = i;
-               if(makeHexacon(nextX, nextY)){
+            if(putInPlace(x, y, i)){
+                if(makeHexoco(nextX, nextY)){
                     return true;
-               }
+                }
+                else{
+                    removeFromPlace(x,y,i);
+                }
             }
+
         }
-        counted[y][x] = false;
         return false;
     }
 
 }
 
-void giver(void){
+void giver(void){   //ok
     for (int i = 1; i <= 2; i++) {
 //		mark[0][i] = true;
 		cout << hexagon[0][i] << " ";
