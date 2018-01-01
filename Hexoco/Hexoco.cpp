@@ -6,10 +6,10 @@ using namespace std;
 int hexagon[10][10];
 bool mark[10][10] = { false }; //if it is a part of hexagon
 bool defaultNum[10][10] = {false}; //if it is a valued thing
-bool has0degreeline[10][32]= {false};
-bool has30degreeline[10][32] = {false};
-bool has60degreeline[20][32] = {false};
-bool hasHexagon[10][10][32] = {false};
+bool has0degreeline[10][40]= {false};
+bool has30degreeline[10][40] = {false};
+bool has60degreeline[20][40] = {false};
+bool hasHexagon[10][10][40] = {false};
 pair <int,int> hexFinderGraf[10][10][3];
 int hexCount[10][10]={0};
 int k;
@@ -32,8 +32,8 @@ bool makeHexoco(int x, int y);
 
 int main() {
     cin >> k;
-    reciever();
     makeGraf();
+    reciever();
     #ifdef Debug
     cout << "isCenter and makeGraf function check:" << endl<< hexCount[4][4] <<endl;
     for(int i = 0; i < hexCount[4][4]; i++){
@@ -98,7 +98,7 @@ bool isCenter(int x, int y){ //ok
 void makeGraf(void){  //ok
     for(int j = 0; j < 10; j++){
         for(int i = 0; i < 10; i++){
-            if(mark[j][i]){
+            //if(mark[j][i]){
                 if(isCenter(i, j)){
                     hexCount[j][i] = 1;
                     hexFinderGraf[j][i][0].first = i;
@@ -125,7 +125,7 @@ void makeGraf(void){  //ok
 
                     }
                 }
-            }
+            //}
         }
     }
 }
@@ -283,18 +283,21 @@ bool makeHexoco(int x, int y){
     }
 
     if(defaultNum[y][x]){
-            if(nextX == -1){
-                return true;
-            }
-            else{
-                return makeHexoco(nextX, nextY);
-            }
+        if(nextX == -1){
+            return true;
+        }
+        else{
+            return makeHexoco(nextX, nextY);
+        }
     }
     else{
         if(nextX == -1){
             for(int i = 1; i <= k; i++){
                 if(putInPlace(x, y, i)){
                    return true;
+                }
+                else{
+                    removeFromPlace(x, y, i);
                 }
             }
             return false;
@@ -306,7 +309,6 @@ bool makeHexoco(int x, int y){
 
                     if(makeHexoco(nextX, nextY)){
                         return true;
-
                     }
                     else{
                         removeFromPlace(x,y,i);
