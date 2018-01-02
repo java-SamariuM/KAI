@@ -1,4 +1,5 @@
 #include <bits/stdc++.h>
+#include <cstdio>
 
 using namespace std;
 
@@ -31,12 +32,13 @@ int main(){
 }
 
 void recieveImage(){
-    cin >>  h >> w >> expected;
+    cin >> h >> w >> expected;
+    //scanf("\n");
     for(int i = 0; i < h; i++){  //hereeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee make < <=
         for(int j = 0; j < w; j++){
-            scanf("(%d, %d, %d) ", &R[i][j], &G[i][j], &B[i][j]);
+            scanf("%*[^0-9]%d%*[^0-9]%d%*[^0-9]%d", &R[i][j], &G[i][j], &B[i][j]);
         }
-        scanf("\n");
+        //if(i != h-1)scanf("\n");
     }
 }
 
