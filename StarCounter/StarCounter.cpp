@@ -1,18 +1,22 @@
 #include <bits/stdc++.h>
 #include <cstdio>
+#include <algorithm>
 
 using namespace std;
 
-#define whiteEdge 220
+//int whiteEdge = 150;
+int StarSize = 1;
 
 int R[810][810];
 int G[810][810];
 int B[810][810];
 int MAP[810][810];
 int subMAP[810][810];
-int star[50][3];
+pair <int, pair <int, int> > star[51];
+
+bool mark[810][810];
 int width, height , expected;
-int range = 10;
+//int range = 10;
 
 void recieveImage();
 
@@ -23,23 +27,52 @@ void blurStar();
 
 int blur(int h, int w);
 
-int findStar();
+int isStar(int h, int w, int whiteEdge);
+
+int findStar(int whitedEdge); //return number of stars
+
+void sortStar(int st, int en);
 
 
 //double change(int x1, int y1, int x2, int y2);
 
-#define Debug
+//#define Debug
 
 int main(){
     recieveImage();
     makeBW();
+    blurStar();
+    int starnum = 0;
+    int whiteEdge = 220;
+    while( (starnum = findStar(whiteEdge)) < expected){
+        makeBW();
+        whiteEdge -= 30;
+        blurStar();
+    }
+    sortStar(0, starnum);
     #ifdef Debug
-    for(int i = 0; i < height; i++){ //hereeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee  make < <=
+/*    for(int i = 0; i < height; i++){ //hereeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee  make < <=
         for(int j = 0; j < width; j++){
             printf("(%d, %d, %d) ", R[i][j], G[i][j], B[i][j]);
         }
     }
+
+    printf("\n");
+    for(int i = 0; i < height; i++){ //hereeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee  make < <=
+        for(int j = 0; j < width; j++){
+            printf("(%d) ", MAP[i][j]);
+        }
+    }
+    */
+    printf("\n");
+    for(int i = 0; i < starnum; i++){
+        printf("%d (%d, %d)\n", star[i].first, star[i].second.first, star[i].second.second);
+    }
     #endif // Debug
+    printf("%d\n", expected);
+    for(int i = 0; i < expected; i++){
+        printf("%d %d\n", star[i].second.first+1, star[i].second.second+1);
+    }
 
 }
 
@@ -93,10 +126,55 @@ int blur(int h, int w){
     return ((int)ans);
 }
 
-int findStar(){
 
+
+int isStar(int h, int w ,int whiteEdge){
+    int counter = 0;
+    if(!mark[h][w]){
+        if(MAP[h][w] >= whiteEdge){
+            counter++;
+            mark[h][w] = true;
+            for(int i = -1; i <= 1; i+=2){
+                if(i+h>=0 && i+h<height)    counter+= isStar(h+i, w, whiteEdge);
+                if(i+w>=0 && i+w<width)     counter+= isStar(h, w+i, whiteEdge);
+            }
+        }
+        else{
+            mark[h][w] = true;
+        }
+    }
+    return counter;
 }
 
+int findStar(int whiteEdge){
+    memset(mark, 0, 810*810);
+    int counter = 0;
+    for(int i = 0; i < height; i++){
+        for(int j = 0; j < width; j++){
+            int save;
+            save = isStar(i, j, whiteEdge);
+            if(save >= StarSize){
+                star[counter].second.first = i;
+                star[counter].second.second = j;
+                star[counter++].first = save;
+            }
+        }
+    }
+    return counter;
+}
+
+void sortStar(int st, int en){
+    for(int i = st; i < en; i++){
+        for(int j = 0; j < en - st -1; j++){
+            if(star[j].first < star[j+1].first){
+                pair <int, pair<int, int> > subStar = star[j];
+                star[j] = star[j+1];
+                star[j+1] = subStar;
+            }
+        }
+    }
+    return;
+}
 /*
 double change(int x1, int y1, int x2, int y2){
      int dR = R[x1] - R[x2];
